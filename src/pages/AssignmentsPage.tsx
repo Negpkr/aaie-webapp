@@ -83,8 +83,19 @@ export default function AssignmentsPage() {
 
   const handleCreateAssignment = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement assignment creation
-    console.log('Creating assignment:', newAssignment);
+    // Create new assignment (mock implementation)
+    const newId = String(mockAssignments.length + 1);
+    const assignment = {
+      id: newId,
+      ...newAssignment,
+      submissionCount: 0,
+      status: 'active',
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    
+    // In a real app, this would be an API call
+    mockAssignments.push(assignment);
+    
     setIsCreateDialogOpen(false);
     setNewAssignment({ title: '', unitCode: '', description: '', dueDate: '' });
   };
@@ -260,16 +271,19 @@ export default function AssignmentsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => console.log('View assignment:', assignment.id)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => console.log('Edit assignment:', assignment.id)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Assignment
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => console.log('Delete assignment:', assignment.id)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete Assignment
                         </DropdownMenuItem>

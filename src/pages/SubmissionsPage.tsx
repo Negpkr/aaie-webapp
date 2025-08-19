@@ -43,12 +43,11 @@ const mockSubmissions = [
     status: 'draft',
     evaluation: {
       classification: 'Hybrid',
-      confidence: 0.75,
       rubricScores: {
         conceptual: 4,
         application: 3,
         evaluation: 4,
-        writing: 5,
+        writing: 4,
       },
     },
   },
@@ -61,11 +60,10 @@ const mockSubmissions = [
     status: 'published',
     evaluation: {
       classification: 'Human',
-      confidence: 0.92,
       rubricScores: {
-        conceptual: 5,
+        conceptual: 4,
         application: 4,
-        evaluation: 5,
+        evaluation: 4,
         writing: 4,
       },
     },
@@ -79,7 +77,6 @@ const mockSubmissions = [
     status: 'draft',
     evaluation: {
       classification: 'AI',
-      confidence: 0.88,
       rubricScores: {
         conceptual: 2,
         application: 3,
@@ -113,8 +110,31 @@ export default function SubmissionsPage() {
 
   const handleUploadSubmission = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement submission upload
-    console.log('Uploading submission:', uploadData);
+    // Create new submission with AI evaluation (mock implementation)
+    const newId = String(mockSubmissions.length + 1);
+    const assignment = mockAssignments.find(a => a.id === uploadData.assignmentId);
+    
+    const submission = {
+      id: newId,
+      studentId: uploadData.studentId,
+      assignmentTitle: assignment?.title || 'Unknown Assignment',
+      unitCode: assignment?.unitCode || 'Unknown',
+      submittedAt: new Date().toISOString(),
+      status: 'draft',
+      evaluation: {
+        classification: Math.random() > 0.6 ? 'Human' : Math.random() > 0.3 ? 'Hybrid' : 'AI',
+        rubricScores: {
+          conceptual: Math.floor(Math.random() * 4) + 1, // 1-4 (Bad, Average, Good, Excellent)
+          application: Math.floor(Math.random() * 4) + 1,
+          evaluation: Math.floor(Math.random() * 4) + 1,
+          writing: Math.floor(Math.random() * 4) + 1,
+        },
+      },
+    };
+    
+    // In a real app, this would be an API call
+    mockSubmissions.push(submission);
+    
     setIsUploadDialogOpen(false);
     setUploadData({ assignmentId: '', studentId: '', content: '' });
   };
@@ -140,7 +160,7 @@ export default function SubmissionsPage() {
     }
   };
 
-  const getClassificationBadge = (classification: string, confidence: number) => {
+  const getClassificationBadge = (classification: string) => {
     const getColor = () => {
       switch (classification) {
         case 'Human':
@@ -155,20 +175,35 @@ export default function SubmissionsPage() {
     };
 
     return (
-      <div className="space-y-1">
-        <Badge className={`${getColor()} border`}>
-          {classification}
-        </Badge>
-        <div className="text-xs text-muted-foreground">
-          {Math.round(confidence * 100)}% confidence
-        </div>
-      </div>
+      <Badge className={`${getColor()} border`}>
+        {classification}
+      </Badge>
     );
   };
 
-  const getAverageScore = (scores: any) => {
-    const values = Object.values(scores) as number[];
-    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+  const getRubricScoreDisplay = (scores: any) => {
+    const scoreLabels = ['Bad', 'Average', 'Good', 'Excellent'];
+    const dimensions = ['Conceptual', 'Application', 'Evaluation', 'Writing'];
+    
+    return (
+      <div className="space-y-1">
+        {dimensions.map((dim, idx) => {
+          const key = dim.toLowerCase();
+          const score = scores[key] || 1;
+          const label = scoreLabels[score - 1];
+          const colorClass = score === 4 ? 'text-green-600' : 
+                           score === 3 ? 'text-blue-600' : 
+                           score === 2 ? 'text-yellow-600' : 'text-red-600';
+          
+          return (
+            <div key={dim} className="flex justify-between text-xs">
+              <span className="font-medium">{dim}:</span>
+              <span className={colorClass}>{label}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -282,7 +317,7 @@ export default function SubmissionsPage() {
                 <TableHead>Student & Assignment</TableHead>
                 <TableHead>Submitted</TableHead>
                 <TableHead>AI Classification</TableHead>
-                <TableHead>Rubric Average</TableHead>
+                <TableHead>Rubric Scores</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -317,18 +352,10 @@ export default function SubmissionsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {getClassificationBadge(
-                      submission.evaluation.classification,
-                      submission.evaluation.confidence
-                    )}
+                    {getClassificationBadge(submission.evaluation.classification)}
                   </TableCell>
                   <TableCell>
-                    <div className="text-center">
-                      <div className="text-lg font-semibold">
-                        {getAverageScore(submission.evaluation.rubricScores)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">out of 5</div>
-                    </div>
+                    {getRubricScoreDisplay(submission.evaluation.rubricScores)}
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(submission.status)}
