@@ -65,7 +65,7 @@ export function AppSidebar() {
   return (
     <Sidebar className={isCollapsed ? 'w-16' : 'w-64'} collapsible="icon">
       <SidebarHeader className="border-b p-4">
-        <div className="flex items-center gap-2">
+        <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <GraduationCap className="h-6 w-6 text-primary" />
           {!isCollapsed && (
             <div className="flex flex-col">
@@ -75,7 +75,7 @@ export function AppSidebar() {
               </span>
             </div>
           )}
-        </div>
+        </NavLink>
       </SidebarHeader>
 
       <SidebarContent>

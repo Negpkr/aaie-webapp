@@ -8,10 +8,11 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
-import AssignmentsPage from "./pages/AssignmentsPage";
+import AssignmentsPage from "./pages/AssignmentsPageWithDB";
 import SubmissionsPage from "./pages/SubmissionsPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
+import AssignmentDetailPage from "./pages/AssignmentDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/assignments" element={<AssignmentsPage />} />
+            <Route path="/assignments/:id" element={<AssignmentDetailPage />} />
             <Route path="/submissions" element={<SubmissionsPage />} />
             <Route path="/submissions/:id" element={<div className="p-6">Feedback Hub (Coming Soon)</div>} />
             <Route path="/reports" element={<div className="p-6">Reports (Coming Soon)</div>} />

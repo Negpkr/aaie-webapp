@@ -1,4 +1,5 @@
 import { GraduationCap, User, Settings, LogOut, Menu } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -25,7 +26,7 @@ export function Header({ title = 'Dashboard' }: HeaderProps) {
         <div className="flex items-center gap-4">
           <SidebarTrigger className="md:hidden" />
           
-          <div className="flex items-center gap-2">
+          <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <GraduationCap className="h-8 w-8 text-primary" />
             <div className="flex flex-col">
               <span className="font-heading text-lg font-bold text-primary">AAIE</span>
@@ -33,7 +34,7 @@ export function Header({ title = 'Dashboard' }: HeaderProps) {
                 Artificial Assessment Intelligence
               </span>
             </div>
-          </div>
+          </NavLink>
           
           <div className="hidden border-l pl-4 md:block">
             <h1 className="font-heading text-lg font-semibold">{title}</h1>
