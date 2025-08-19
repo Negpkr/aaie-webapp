@@ -1,130 +1,86 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* AAIE Academic Design System - Professional, trustworthy, accessible */
-
 @layer base {
   :root {
-    /* AAIE Brand Colors - Academic Professional Palette */
-    --aaie-navy: 203 67% 22%; /* #1C3D5A - Deep professional navy */
-    --aaie-blue: 212 64% 55%; /* #3E8EDE - Trustworthy blue */
-    --aaie-teal: 159 66% 56%; /* #3DDC97 - Fresh accent */
-    --aaie-red: 354 70% 59%; /* #E63946 - Alert/error color */
-    --aaie-bg: 212 33% 97%; /* #F5F7FA - Clean background */
-    --aaie-white: 0 0% 100%; /* #FFFFFF - Pure white */
-    --aaie-gray-50: 210 20% 98%;
-    --aaie-gray-100: 212 16% 94%;
-    --aaie-gray-200: 211 13% 85%;
-    --aaie-gray-300: 211 10% 71%;
-    --aaie-gray-400: 211 9% 53%;
-    --aaie-gray-500: 211 10% 39%;
-    --aaie-gray-600: 211 12% 27%;
-    --aaie-gray-700: 211 18% 20%;
-    --aaie-gray-800: 211 25% 14%;
-    --aaie-gray-900: 211 39% 9%;
-
-    /* Semantic Design System Colors */
-    --background: var(--aaie-bg);
-    --foreground: var(--aaie-gray-900);
-
-    --card: var(--aaie-white);
-    --card-foreground: var(--aaie-gray-900);
-
-    --popover: var(--aaie-white);
-    --popover-foreground: var(--aaie-gray-900);
-
-    --primary: var(--aaie-navy);
-    --primary-foreground: var(--aaie-white);
-
-    --secondary: var(--aaie-gray-100);
-    --secondary-foreground: var(--aaie-gray-900);
-
-    --muted: var(--aaie-gray-100);
-    --muted-foreground: var(--aaie-gray-500);
-
-    --accent: var(--aaie-teal);
-    --accent-foreground: var(--aaie-white);
-
-    --destructive: var(--aaie-red);
-    --destructive-foreground: var(--aaie-white);
-
-    --border: var(--aaie-gray-200);
-    --input: var(--aaie-gray-200);
-    --ring: var(--aaie-blue);
-
-    --radius: 0.5rem;
-
-    /* Academic Design Enhancements */
-    --shadow-sm: 0 1px 2px 0 hsl(var(--aaie-gray-900) / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(var(--aaie-gray-900) / 0.1), 0 2px 4px -1px hsl(var(--aaie-gray-900) / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(var(--aaie-gray-900) / 0.1), 0 4px 6px -2px hsl(var(--aaie-gray-900) / 0.05);
-    --shadow-focus: 0 0 0 3px hsl(var(--aaie-blue) / 0.3);
+    /* Academic Color Palette */
+    --primary: 220 65% 35%;           /* Deep academic blue */
+    --primary-glow: 220 65% 55%;     /* Lighter academic blue */
+    --primary-foreground: 0 0% 98%;  /* Nearly white text */
     
-    /* Academic Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--aaie-navy)), hsl(var(--aaie-blue)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--aaie-blue)), hsl(var(--aaie-teal)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--aaie-white)), hsl(var(--aaie-gray-50)));
+    --secondary: 220 30% 95%;        /* Very light blue-gray */
+    --secondary-foreground: 220 65% 25%; /* Dark blue text */
     
-    /* Transitions */
-    --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    --sidebar-background: var(--aaie-white);
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --accent: 195 100% 40%;          /* Scholarly teal */
+    --accent-foreground: 0 0% 98%;   /* White text on accent */
+    
+    --background: 0 0% 100%;         /* Pure white */
+    --foreground: 220 15% 15%;       /* Dark gray text */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+    
+    --muted: 220 30% 96%;
+    --muted-foreground: 220 15% 45%;
+    
+    --border: 220 30% 88%;
+    --input: 220 30% 88%;
+    --ring: 220 65% 35%;
+    
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Academic-specific design tokens */
+    --gradient-subtle: linear-gradient(135deg, hsl(220 30% 98%), hsl(220 30% 95%));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --shadow-academic: 0 4px 20px -4px hsl(var(--primary) / 0.15);
+    --shadow-academic-md: 0 8px 25px -8px hsl(var(--primary) / 0.25);
+    --shadow-academic-lg: 0 12px 40px -12px hsl(var(--primary) / 0.35);
+    
+    /* Typography */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 220 20% 8%;
+    --foreground: 220 10% 95%;
+    
+    --card: 220 20% 10%;
+    --card-foreground: 220 10% 95%;
+    
+    --popover: 220 20% 10%;
+    --popover-foreground: 220 10% 95%;
+    
+    --primary: 220 65% 55%;
+    --primary-foreground: 220 20% 8%;
+    
+    --secondary: 220 20% 15%;
+    --secondary-foreground: 220 10% 95%;
+    
+    --muted: 220 20% 15%;
+    --muted-foreground: 220 10% 65%;
+    
+    --accent: 195 100% 50%;
+    --accent-foreground: 220 20% 8%;
+    
+    --destructive: 0 85% 65%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 220 65% 55%;
+    
+    --gradient-subtle: linear-gradient(135deg, hsl(220 20% 12%), hsl(220 20% 8%));
+    --shadow-academic: 0 4px 20px -4px hsl(0 0% 0% / 0.5);
+    --shadow-academic-md: 0 8px 25px -8px hsl(0 0% 0% / 0.6);
+    --shadow-academic-lg: 0 12px 40px -12px hsl(0 0% 0% / 0.7);
   }
 }
 
@@ -132,47 +88,34 @@
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground font-body antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-background text-foreground font-body;
   }
-
+  
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Merriweather', Georgia, serif;
-    font-weight: 700;
-    line-height: 1.2;
+    @apply font-heading;
   }
+}
 
-  /* Academic Typography Scale */
-  .font-heading {
-    font-family: 'Merriweather', Georgia, serif;
-  }
-
-  .font-body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-
-  /* Focus styles for accessibility */
-  .focus-ring {
-    @apply outline-none ring-2 ring-offset-2 ring-ring transition-all;
-  }
-
-  /* Academic component variants */
+@layer components {
+  /* Academic UI Components */
   .academic-card {
-    @apply bg-card border border-border rounded-lg shadow-sm transition-all hover:shadow-md;
+    @apply bg-card border border-border shadow-academic transition-shadow duration-300;
   }
-
-  .academic-button {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  
+  .academic-card:hover {
+    @apply shadow-academic-md;
   }
-
-  .academic-input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
+  
+  .academic-gradient {
+    background: var(--gradient-primary);
   }
-
-  /* Skip link for accessibility */
-  .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50;
+  
+  .academic-text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
