@@ -1,66 +1,73 @@
-# AAIE - Artificial Assessment Intelligence Engine
+# Welcome to your Lovable project
 
-A comprehensive academic assessment platform that combines AI-powered evaluation with traditional rubric-based scoring.
+## Project info
 
-## Project Structure
+**URL**: https://lovable.dev/projects/442d6b19-841f-43b1-aab6-71d83eccf3be
 
-```
-aaie/
-├── frontend/              # React frontend application
-│   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Route components
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── services/      # API services
-│   │   └── utils/         # Utility functions
-│   └── README.md
-├── backend/               # Supabase backend configuration
-│   └── README.md
-├── docs/                  # Project documentation
-│   ├── README.md          # System overview
-│   └── api-spec.md        # API specification
-└── README.md             # This file
-```
+## How can I edit this code?
 
-## Quick Start
+There are several ways of editing your application.
 
-### Frontend Development
-```bash
-npm install
+**Use Lovable**
+
+Simply visit the [Lovable Project](https://lovable.dev/projects/442d6b19-841f-43b1-aab6-71d83eccf3be) and start prompting.
+
+Changes made via Lovable will be committed automatically to this repo.
+
+**Use your preferred IDE**
+
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-### Backend Setup
-The backend uses Supabase. See `backend/README.md` for setup instructions.
+**Edit a file directly in GitHub**
 
-## Features
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-- **AI Detection**: Classify submissions as Human, AI, or Hybrid
-- **Rubric Scoring**: Automated evaluation across 4 dimensions
-- **Instant Feedback**: Generate comprehensive reports in seconds
-- **Educator Dashboard**: Manage assignments and track submissions
+**Use GitHub Codespaces**
 
-## Technology Stack
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-- **Frontend**: React + TypeScript + Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Auth + Storage)
-- **UI**: shadcn/ui components
-- **Build**: Vite
+## What technologies are used for this project?
 
-## Documentation
+This project is built with:
 
-- [System Overview](docs/README.md)
-- [API Specification](docs/api-spec.md)
-- [Frontend Guide](frontend/README.md)
-- [Backend Guide](backend/README.md)
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-## Contributing
+## How can I deploy this project?
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Simply open [Lovable](https://lovable.dev/projects/442d6b19-841f-43b1-aab6-71d83eccf3be) and click on Share -> Publish.
 
-## License
+## Can I connect a custom domain to my Lovable project?
 
-MIT License - see LICENSE file for details.
+Yes, you can!
+
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
