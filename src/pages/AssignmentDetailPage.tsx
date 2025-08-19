@@ -1,19 +1,35 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Users, FileText, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, FileText, Edit, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { SubmissionUploadDialog } from '@/components/ui/SubmissionUploadDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Assignment } from '@/hooks/useAssignments';
+import { Assignment, useAssignments } from '@/hooks/useAssignments';
+import { toast } from 'sonner';
 
 export default function AssignmentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { updateAssignment, deleteAssignment } = useAssignments();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editData, setEditData] = useState({
+    title: '',
+    unit_code: '',
+    description: '',
+    due_at: '',
+  });
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -113,11 +129,25 @@ export default function AssignmentDetailPage() {
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              setEditData({
+                title: assignment.title,
+                unit_code: assignment.unit_code,
+                description: assignment.description || '',
+                due_at: assignment.due_at,
+              });
+              setIsEditDialogOpen(true);
+            }}
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit Assignment
           </Button>
-          <Button variant="destructive">
+          <Button 
+            variant="destructive"
+            onClick={() => setIsDeleteDialogOpen(true)}
+          >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>
@@ -218,9 +248,12 @@ export default function AssignmentDetailPage() {
                 </p>
               </div>
             </div>
-            <Button variant="outline" className="w-full mt-4">
-              Upload New
-            </Button>
+            <SubmissionUploadDialog>
+              <Button variant="outline" className="w-full mt-4">
+                <Upload className="mr-2 h-4 w-4" />
+                Upload New
+              </Button>
+            </SubmissionUploadDialog>
           </CardContent>
         </Card>
         
@@ -235,12 +268,139 @@ export default function AssignmentDetailPage() {
                 </p>
               </div>
             </div>
-            <Button variant="outline" className="w-full mt-4">
+            <Button 
+              variant="outline" 
+              className="w-full mt-4"
+              onClick={() => {
+                setEditData({
+                  title: assignment.title,
+                  unit_code: assignment.unit_code,
+                  description: assignment.description || '',
+                  due_at: assignment.due_at,
+                });
+                setIsEditDialogOpen(true);
+              }}
+            >
               Edit Details
             </Button>
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Assignment Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            try {
+              await updateAssignment(assignment.id, editData);
+              setIsEditDialogOpen(false);
+              // Refresh assignment data
+              const { data } = await supabase
+                .from('assignments')
+                .select(`*, submissions(count)`)
+                .eq('id', id)
+                .eq('owner_id', user.id)
+                .single();
+              
+              if (data) {
+                setAssignment({
+                  ...data,
+                  submissionCount: data.submissions?.[0]?.count || 0,
+                  status: new Date(data.due_at) < new Date() ? 'closed' : 'active'
+                });
+              }
+              toast.success('Assignment updated successfully');
+            } catch (error) {
+              toast.error('Failed to update assignment');
+            }
+          }}>
+            <DialogHeader>
+              <DialogTitle className="font-heading">Edit Assignment</DialogTitle>
+              <DialogDescription>
+                Update the assignment details.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Assignment Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editData.title}
+                  onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                  required
+                  className="academic-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-unit_code">Unit Code</Label>
+                <Input
+                  id="edit-unit_code"
+                  value={editData.unit_code}
+                  onChange={(e) => setEditData({ ...editData, unit_code: e.target.value })}
+                  required
+                  className="academic-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editData.description}
+                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                  className="academic-input"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-due_at">Due Date</Label>
+                <Input
+                  id="edit-due_at"
+                  type="date"
+                  value={editData.due_at}
+                  onChange={(e) => setEditData({ ...editData, due_at: e.target.value })}
+                  required
+                  className="academic-input"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="academic-button">
+                Update Assignment
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Assignment Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Assignment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{assignment?.title}"? This action cannot be undone and will also delete all related submissions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={async () => {
+                try {
+                  await deleteAssignment(assignment.id);
+                  toast.success('Assignment deleted successfully');
+                  navigate('/assignments');
+                } catch (error) {
+                  toast.error('Failed to delete assignment');
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

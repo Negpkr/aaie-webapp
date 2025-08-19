@@ -4,76 +4,57 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
+import { useAssignments } from '@/hooks/useAssignments';
+import { useSubmissions } from '@/hooks/useSubmissions';
 import { Link } from 'react-router-dom';
-
-// Mock data for demonstration
-const mockStats = {
-  totalAssignments: 12,
-  totalSubmissions: 48,
-  pendingReviews: 8,
-  publishedFeedback: 40,
-};
-
-const mockRecentActivity = [
-  {
-    id: '1',
-    type: 'submission',
-    title: 'New submission for Essay Analysis',
-    time: '2 hours ago',
-    unit: 'SIT374',
-  },
-  {
-    id: '2',
-    type: 'feedback',
-    title: 'Feedback published for Research Methods',
-    time: '4 hours ago',
-    unit: 'SIT312',
-  },
-  {
-    id: '3',
-    type: 'assignment',
-    title: 'New assignment created: Final Project',
-    time: '1 day ago',
-    unit: 'SIT374',
-  },
-];
-
-const mockAssignments = [
-  {
-    id: '1',
-    title: 'Essay Analysis Assignment',
-    unitCode: 'SIT374',
-    dueDate: '2025-02-15',
-    submissionCount: 15,
-    pendingCount: 3,
-  },
-  {
-    id: '2',
-    title: 'Research Methods Report',
-    unitCode: 'SIT312',
-    dueDate: '2025-02-20',
-    submissionCount: 12,
-    pendingCount: 2,
-  },
-  {
-    id: '3',
-    title: 'Final Project Proposal',
-    unitCode: 'SIT374',
-    dueDate: '2025-03-01',
-    submissionCount: 8,
-    pendingCount: 8,
-  },
-];
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { assignments, isLoading: assignmentsLoading } = useAssignments();
+  const { submissions, isLoading: submissionsLoading } = useSubmissions();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
+  // Calculate stats from real data
+  const stats = {
+    totalAssignments: assignments.length,
+    totalSubmissions: submissions.length,
+    pendingReviews: submissions.filter(s => s.status === 'draft').length,
+    publishedFeedback: submissions.filter(s => s.status === 'published').length,
+  };
+
+  // Get recent assignments with submission data
+  const recentAssignments = assignments
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 3)
+    .map(assignment => ({
+      ...assignment,
+      submissionCount: submissions.filter(s => s.assignment_id === assignment.id).length,
+      pendingCount: submissions.filter(s => s.assignment_id === assignment.id && s.status === 'draft').length,
+    }));
+
+  // Get recent activity
+  const recentActivity = [
+    ...submissions.slice(0, 2).map(submission => ({
+      id: submission.id,
+      type: 'submission' as const,
+      title: `New submission for ${submission.assignment?.title || 'Assignment'}`,
+      time: new Date(submission.created_at).toLocaleDateString(),
+      unit: submission.assignment?.unit_code || 'N/A',
+    })),
+    ...assignments.slice(0, 1).map(assignment => ({
+      id: assignment.id,
+      type: 'assignment' as const,
+      title: `Assignment created: ${assignment.title}`,
+      time: new Date(assignment.created_at).toLocaleDateString(),
+      unit: assignment.unit_code,
+    }))
+  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 3);
+
+  if (!mounted || assignmentsLoading || submissionsLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
@@ -104,7 +85,7 @@ export default function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalAssignments}</div>
+            <div className="text-2xl font-bold">{stats.totalAssignments}</div>
             <p className="text-xs text-muted-foreground">Active assignments</p>
           </CardContent>
         </Card>
@@ -115,7 +96,7 @@ export default function DashboardPage() {
             <Send className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockStats.totalSubmissions}</div>
+            <div className="text-2xl font-bold">{stats.totalSubmissions}</div>
             <p className="text-xs text-muted-foreground">Student submissions</p>
           </CardContent>
         </Card>
@@ -126,7 +107,7 @@ export default function DashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{mockStats.pendingReviews}</div>
+            <div className="text-2xl font-bold text-amber-600">{stats.pendingReviews}</div>
             <p className="text-xs text-muted-foreground">Awaiting your review</p>
           </CardContent>
         </Card>
@@ -137,7 +118,7 @@ export default function DashboardPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{mockStats.publishedFeedback}</div>
+            <div className="text-2xl font-bold text-green-600">{stats.publishedFeedback}</div>
             <p className="text-xs text-muted-foreground">Completed reviews</p>
           </CardContent>
         </Card>
@@ -162,32 +143,39 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockAssignments.map((assignment) => (
-                <div 
-                  key={assignment.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{assignment.title}</h3>
-                      <Badge variant="secondary">{assignment.unitCode}</Badge>
+              {recentAssignments.length > 0 ? (
+                recentAssignments.map((assignment) => (
+                  <Link
+                    key={assignment.id}
+                    to={`/assignments/${assignment.id}`}
+                    className="block"
+                  >
+                    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium">{assignment.title}</h3>
+                          <Badge variant="secondary">{assignment.unit_code}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Due: {new Date(assignment.due_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right space-y-1">
+                        <p className="text-sm font-medium">
+                          {assignment.submissionCount} submissions
+                        </p>
+                        {assignment.pendingCount > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            {assignment.pendingCount} pending
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Due: {new Date(assignment.dueDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right space-y-1">
-                    <p className="text-sm font-medium">
-                      {assignment.submissionCount} submissions
-                    </p>
-                    {assignment.pendingCount > 0 && (
-                      <Badge variant="destructive" className="text-xs">
-                        {assignment.pendingCount} pending
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
+                  </Link>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-center py-4">No assignments yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -202,36 +190,35 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockRecentActivity.map((activity) => (
-                <div key={activity.id} className="flex gap-3">
-                  <div className="flex-shrink-0">
-                    {activity.type === 'submission' && (
-                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Send className="h-4 w-4 text-blue-600" />
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      {activity.type === 'submission' && (
+                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Send className="h-4 w-4 text-blue-600" />
+                        </div>
+                      )}
+                      {activity.type === 'assignment' && (
+                        <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-purple-600" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium">{activity.title}</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {activity.unit}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">{activity.time}</span>
                       </div>
-                    )}
-                    {activity.type === 'feedback' && (
-                      <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      </div>
-                    )}
-                    {activity.type === 'assignment' && (
-                      <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <FileText className="h-4 w-4 text-purple-600" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{activity.title}</p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {activity.unit}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">{activity.time}</span>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-muted-foreground text-center py-4">No recent activity</p>
+              )}
             </div>
           </CardContent>
         </Card>
