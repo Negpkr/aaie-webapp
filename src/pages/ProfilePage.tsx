@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, User, Mail, Building, Calendar, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,36 +9,48 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { profile, loading, updateProfile } = useProfile();
   const { toast } = useToast();
   
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: user?.user_metadata?.name || '',
-    email: user?.email || '',
-    institution: 'Deakin University',
-    department: 'School of Information Technology',
-    bio: 'Passionate educator focused on innovative assessment methodologies and AI-assisted learning.',
-    joinedDate: '2024-01-15',
-    role: 'Senior Lecturer',
-    specializations: ['AI in Education', 'Academic Assessment', 'Learning Analytics'],
+  const [editedProfile, setEditedProfile] = useState({
+    name: '',
+    institution: '',
+    role: '',
   });
 
-  const handleSave = () => {
-    // TODO: Implement profile save
+  // Update edited profile when profile loads
+  useEffect(() => {
+    if (profile) {
+      setEditedProfile({
+        name: profile.name,
+        institution: profile.institution || '',
+        role: profile.role,
+      });
+    }
+  }, [profile]);
+
+  const handleSave = async () => {
+    if (!profile) return;
+    
+    await updateProfile(editedProfile);
     setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved successfully.",
-    });
   };
 
   const handleCancel = () => {
+    if (profile) {
+      setEditedProfile({
+        name: profile.name,
+        institution: profile.institution || '',
+        role: profile.role,
+      });
+    }
     setIsEditing(false);
-    // Reset form to original values
   };
 
   const getInitials = (name: string) => {
@@ -48,6 +60,27 @@ export default function ProfilePage() {
       .join('')
       .toUpperCase();
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">Profile not found</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -87,22 +120,20 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Building className="h-4 w-4" />
-                {profile.institution}
+                {profile.institution || 'No institution set'}
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                Joined {new Date(profile.joinedDate).toLocaleDateString()}
+                Joined {new Date(profile.created_at).toLocaleDateString()}
               </div>
             </div>
             <Separator />
             <div>
-              <h3 className="font-medium mb-3">Specializations</h3>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {profile.specializations.map((spec, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {spec}
-                  </Badge>
-                ))}
+              <h3 className="font-medium mb-3">Role</h3>
+              <div className="flex justify-center">
+                <Badge variant="secondary" className="text-xs">
+                  {profile.role}
+                </Badge>
               </div>
             </div>
           </CardContent>
@@ -122,8 +153,8 @@ export default function ProfilePage() {
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  value={profile.name}
-                  onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                  value={editedProfile.name}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, name: e.target.value }))}
                   disabled={!isEditing}
                   className="academic-input"
                 />
@@ -134,7 +165,7 @@ export default function ProfilePage() {
                   <Input
                     id="email"
                     type="email"
-                    value={profile.email}
+                    value={user?.email || ''}
                     disabled={true}
                     className="academic-input pl-10"
                   />
@@ -148,20 +179,11 @@ export default function ProfilePage() {
                 <Label htmlFor="institution">Institution</Label>
                 <Input
                   id="institution"
-                  value={profile.institution}
-                  onChange={(e) => setProfile(prev => ({ ...prev, institution: e.target.value }))}
+                  value={editedProfile.institution}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, institution: e.target.value }))}
                   disabled={!isEditing}
                   className="academic-input"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
-                  value={profile.department}
-                  onChange={(e) => setProfile(prev => ({ ...prev, department: e.target.value }))}
-                  disabled={!isEditing}
-                  className="academic-input"
+                  placeholder="Enter your institution"
                 />
               </div>
             </div>
@@ -170,23 +192,11 @@ export default function ProfilePage() {
               <Label htmlFor="role">Role/Position</Label>
               <Input
                 id="role"
-                value={profile.role}
-                onChange={(e) => setProfile(prev => ({ ...prev, role: e.target.value }))}
+                value={editedProfile.role}
+                onChange={(e) => setEditedProfile(prev => ({ ...prev, role: e.target.value }))}
                 disabled={!isEditing}
                 className="academic-input"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                value={profile.bio}
-                onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                disabled={!isEditing}
-                className="academic-input"
-                rows={4}
-                placeholder="Tell us about yourself..."
+                placeholder="Enter your role"
               />
             </div>
 
