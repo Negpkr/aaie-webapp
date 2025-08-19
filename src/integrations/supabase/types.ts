@@ -14,7 +14,157 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assignments: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_at: string
+          id: string
+          owner_id: string
+          title: string
+          unit_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_at: string
+          id?: string
+          owner_id: string
+          title: string
+          unit_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_at?: string
+          id?: string
+          owner_id?: string
+          title?: string
+          unit_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      evaluations: {
+        Row: {
+          ai_feedback: string | null
+          classification: string
+          confidence: number
+          created_at: string
+          id: string
+          published_at: string | null
+          rubric_scores: Json
+          submission_id: string
+          teacher_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          classification: string
+          confidence: number
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          rubric_scores?: Json
+          submission_id: string
+          teacher_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          classification?: string
+          confidence?: number
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          rubric_scores?: Json
+          submission_id?: string
+          teacher_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          institution: string | null
+          name: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          institution?: string | null
+          name: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          institution?: string | null
+          name?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          assignment_id: string
+          content: string | null
+          created_at: string
+          file_url: string | null
+          id: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
