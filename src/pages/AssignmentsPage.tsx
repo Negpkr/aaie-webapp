@@ -29,11 +29,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 // Mock data
-const mockAssignments = [
+let mockAssignments = [
   {
     id: '1',
     title: 'Essay Analysis Assignment',
@@ -68,23 +78,33 @@ const mockAssignments = [
 
 export default function AssignmentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [assignments, setAssignments] = useState(mockAssignments);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [newAssignment, setNewAssignment] = useState({
     title: '',
     unitCode: '',
     description: '',
     dueDate: '',
   });
+  const [editAssignment, setEditAssignment] = useState({
+    title: '',
+    unitCode: '',
+    description: '',
+    dueDate: '',
+  });
 
-  const filteredAssignments = mockAssignments.filter(assignment =>
+  const filteredAssignments = assignments.filter(assignment =>
     assignment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     assignment.unitCode.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleCreateAssignment = (e: React.FormEvent) => {
     e.preventDefault();
-    // Create new assignment (mock implementation)
-    const newId = String(mockAssignments.length + 1);
+    const newId = String(assignments.length + 1);
     const assignment = {
       id: newId,
       ...newAssignment,
@@ -93,11 +113,58 @@ export default function AssignmentsPage() {
       createdAt: new Date().toISOString().split('T')[0],
     };
     
-    // In a real app, this would be an API call
-    mockAssignments.push(assignment);
-    
+    setAssignments([...assignments, assignment]);
     setIsCreateDialogOpen(false);
     setNewAssignment({ title: '', unitCode: '', description: '', dueDate: '' });
+  };
+
+  const handleEditAssignment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAssignment) return;
+    
+    const updatedAssignments = assignments.map(assignment =>
+      assignment.id === selectedAssignment.id
+        ? { ...assignment, ...editAssignment }
+        : assignment
+    );
+    
+    setAssignments(updatedAssignments);
+    setIsEditDialogOpen(false);
+    setSelectedAssignment(null);
+    setEditAssignment({ title: '', unitCode: '', description: '', dueDate: '' });
+  };
+
+  const handleDeleteAssignment = () => {
+    if (!selectedAssignment) return;
+    
+    const updatedAssignments = assignments.filter(
+      assignment => assignment.id !== selectedAssignment.id
+    );
+    
+    setAssignments(updatedAssignments);
+    setIsDeleteDialogOpen(false);
+    setSelectedAssignment(null);
+  };
+
+  const openEditDialog = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setEditAssignment({
+      title: assignment.title,
+      unitCode: assignment.unitCode,
+      description: assignment.description,
+      dueDate: assignment.dueDate,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const openViewDialog = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setIsViewDialogOpen(true);
+  };
+
+  const openDeleteDialog = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setIsDeleteDialogOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -271,18 +338,18 @@ export default function AssignmentsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => console.log('View assignment:', assignment.id)}>
+                        <DropdownMenuItem onClick={() => openViewDialog(assignment)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => console.log('Edit assignment:', assignment.id)}>
+                        <DropdownMenuItem onClick={() => openEditDialog(assignment)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Assignment
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           className="text-destructive"
-                          onClick={() => console.log('Delete assignment:', assignment.id)}
+                          onClick={() => openDeleteDialog(assignment)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete Assignment
@@ -317,6 +384,132 @@ export default function AssignmentsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Assignment Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={handleEditAssignment}>
+            <DialogHeader>
+              <DialogTitle className="font-heading">Edit Assignment</DialogTitle>
+              <DialogDescription>
+                Update the assignment details.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Assignment Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editAssignment.title}
+                  onChange={(e) => setEditAssignment({ ...editAssignment, title: e.target.value })}
+                  required
+                  className="academic-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-unitCode">Unit Code</Label>
+                <Input
+                  id="edit-unitCode"
+                  value={editAssignment.unitCode}
+                  onChange={(e) => setEditAssignment({ ...editAssignment, unitCode: e.target.value })}
+                  required
+                  className="academic-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editAssignment.description}
+                  onChange={(e) => setEditAssignment({ ...editAssignment, description: e.target.value })}
+                  className="academic-input"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-dueDate">Due Date</Label>
+                <Input
+                  id="edit-dueDate"
+                  type="date"
+                  value={editAssignment.dueDate}
+                  onChange={(e) => setEditAssignment({ ...editAssignment, dueDate: e.target.value })}
+                  required
+                  className="academic-input"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="academic-button">
+                Update Assignment
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Assignment Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading">Assignment Details</DialogTitle>
+          </DialogHeader>
+          {selectedAssignment && (
+            <div className="space-y-4 py-4">
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Title</Label>
+                <p className="text-sm">{selectedAssignment.title}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Unit Code</Label>
+                <p className="text-sm">{selectedAssignment.unitCode}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Description</Label>
+                <p className="text-sm">{selectedAssignment.description}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Due Date</Label>
+                <p className="text-sm">{new Date(selectedAssignment.dueDate).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Submissions</Label>
+                <p className="text-sm">{selectedAssignment.submissionCount} submissions</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                <div className="mt-1">{getStatusBadge(selectedAssignment.status)}</div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Created</Label>
+                <p className="text-sm">{new Date(selectedAssignment.createdAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Assignment Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Assignment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedAssignment?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAssignment} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, Search, Filter, Eye, FileText, User, Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Upload, Search, Filter, Eye, FileText, User, Calendar, CheckCircle, Clock, AlertCircle, Trash2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -33,7 +51,7 @@ import {
 import { Link } from 'react-router-dom';
 
 // Mock data
-const mockSubmissions = [
+let mockSubmissions = [
   {
     id: '1',
     studentId: 'S001',
@@ -95,14 +113,17 @@ const mockAssignments = [
 
 export default function SubmissionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [submissions, setSubmissions] = useState(mockSubmissions);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [uploadData, setUploadData] = useState({
     assignmentId: '',
     studentId: '',
     content: '',
   });
 
-  const filteredSubmissions = mockSubmissions.filter(submission =>
+  const filteredSubmissions = submissions.filter(submission =>
     submission.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
     submission.assignmentTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
     submission.unitCode.toLowerCase().includes(searchTerm.toLowerCase())
@@ -110,8 +131,7 @@ export default function SubmissionsPage() {
 
   const handleUploadSubmission = (e: React.FormEvent) => {
     e.preventDefault();
-    // Create new submission with AI evaluation (mock implementation)
-    const newId = String(mockSubmissions.length + 1);
+    const newId = String(submissions.length + 1);
     const assignment = mockAssignments.find(a => a.id === uploadData.assignmentId);
     
     const submission = {
@@ -132,11 +152,26 @@ export default function SubmissionsPage() {
       },
     };
     
-    // In a real app, this would be an API call
-    mockSubmissions.push(submission);
-    
+    setSubmissions([...submissions, submission]);
     setIsUploadDialogOpen(false);
     setUploadData({ assignmentId: '', studentId: '', content: '' });
+  };
+
+  const handleDeleteSubmission = () => {
+    if (!selectedSubmission) return;
+    
+    const updatedSubmissions = submissions.filter(
+      submission => submission.id !== selectedSubmission.id
+    );
+    
+    setSubmissions(updatedSubmissions);
+    setIsDeleteDialogOpen(false);
+    setSelectedSubmission(null);
+  };
+
+  const openDeleteDialog = (submission: any) => {
+    setSelectedSubmission(submission);
+    setIsDeleteDialogOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -361,12 +396,31 @@ export default function SubmissionsPage() {
                     {getStatusBadge(submission.status)}
                   </TableCell>
                   <TableCell>
-                    <Button asChild variant="outline" size="sm" className="academic-button">
-                      <Link to={`/submissions/${submission.id}`}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Review
-                      </Link>
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/submissions/${submission.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Review
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => openDeleteDialog(submission)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Submission
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -395,6 +449,24 @@ export default function SubmissionsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Submission Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Submission</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the submission from {selectedSubmission?.studentId}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteSubmission} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
