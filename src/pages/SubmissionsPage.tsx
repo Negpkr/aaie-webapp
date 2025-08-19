@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Upload, Search, Filter, Eye, FileText, User, Calendar, CheckCircle, Clock, AlertCircle, Trash2, MoreHorizontal } from 'lucide-react';
+import { useSubmissions } from '@/hooks/useSubmissions';
+import { useAssignments } from '@/hooks/useAssignments';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,70 +53,10 @@ import {
 } from '@/components/ui/select';
 import { Link } from 'react-router-dom';
 
-// Mock data
-let mockSubmissions = [
-  {
-    id: '1',
-    studentId: 'S001',
-    assignmentTitle: 'Essay Analysis Assignment',
-    unitCode: 'SIT374',
-    submittedAt: '2025-01-20T14:30:00Z',
-    status: 'draft',
-    evaluation: {
-      classification: 'Hybrid',
-      rubricScores: {
-        conceptual: 4,
-        application: 3,
-        evaluation: 4,
-        writing: 4,
-      },
-    },
-  },
-  {
-    id: '2',
-    studentId: 'S002',
-    assignmentTitle: 'Research Methods Report',
-    unitCode: 'SIT312',
-    submittedAt: '2025-01-19T16:45:00Z',
-    status: 'published',
-    evaluation: {
-      classification: 'Human',
-      rubricScores: {
-        conceptual: 4,
-        application: 4,
-        evaluation: 4,
-        writing: 4,
-      },
-    },
-  },
-  {
-    id: '3',
-    studentId: 'S003',
-    assignmentTitle: 'Final Project Proposal',
-    unitCode: 'SIT374',
-    submittedAt: '2025-01-18T10:15:00Z',
-    status: 'draft',
-    evaluation: {
-      classification: 'AI',
-      rubricScores: {
-        conceptual: 2,
-        application: 3,
-        evaluation: 2,
-        writing: 3,
-      },
-    },
-  },
-];
-
-const mockAssignments = [
-  { id: '1', title: 'Essay Analysis Assignment', unitCode: 'SIT374' },
-  { id: '2', title: 'Research Methods Report', unitCode: 'SIT312' },
-  { id: '3', title: 'Final Project Proposal', unitCode: 'SIT374' },
-];
-
 export default function SubmissionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [submissions, setSubmissions] = useState(mockSubmissions);
+  const { submissions, isLoading, error, createSubmission, deleteSubmission } = useSubmissions();
+  const { assignments } = useAssignments();
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
@@ -123,50 +66,44 @@ export default function SubmissionsPage() {
     content: '',
   });
 
-  const filteredSubmissions = submissions.filter(submission =>
-    submission.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    submission.assignmentTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    submission.unitCode.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSubmissions = submissions.filter(submission => {
+    const assignmentTitle = submission.assignment?.title || '';
+    const unitCode = submission.assignment?.unit_code || '';
+    return (
+      submission.student_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      assignmentTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unitCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
-  const handleUploadSubmission = (e: React.FormEvent) => {
+  const handleUploadSubmission = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newId = String(submissions.length + 1);
-    const assignment = mockAssignments.find(a => a.id === uploadData.assignmentId);
-    
-    const submission = {
-      id: newId,
-      studentId: uploadData.studentId,
-      assignmentTitle: assignment?.title || 'Unknown Assignment',
-      unitCode: assignment?.unitCode || 'Unknown',
-      submittedAt: new Date().toISOString(),
-      status: 'draft',
-      evaluation: {
-        classification: Math.random() > 0.6 ? 'Human' : Math.random() > 0.3 ? 'Hybrid' : 'AI',
-        rubricScores: {
-          conceptual: Math.floor(Math.random() * 4) + 1, // 1-4 (Bad, Average, Good, Excellent)
-          application: Math.floor(Math.random() * 4) + 1,
-          evaluation: Math.floor(Math.random() * 4) + 1,
-          writing: Math.floor(Math.random() * 4) + 1,
-        },
-      },
-    };
-    
-    setSubmissions([...submissions, submission]);
-    setIsUploadDialogOpen(false);
-    setUploadData({ assignmentId: '', studentId: '', content: '' });
+    try {
+      await createSubmission({
+        assignment_id: uploadData.assignmentId,
+        student_id: uploadData.studentId,
+        content: uploadData.content,
+      });
+      
+      toast.success('Submission uploaded and evaluated successfully');
+      setIsUploadDialogOpen(false);
+      setUploadData({ assignmentId: '', studentId: '', content: '' });
+    } catch (error) {
+      toast.error('Failed to upload submission');
+    }
   };
 
-  const handleDeleteSubmission = () => {
+  const handleDeleteSubmission = async () => {
     if (!selectedSubmission) return;
     
-    const updatedSubmissions = submissions.filter(
-      submission => submission.id !== selectedSubmission.id
-    );
-    
-    setSubmissions(updatedSubmissions);
-    setIsDeleteDialogOpen(false);
-    setSelectedSubmission(null);
+    try {
+      await deleteSubmission(selectedSubmission.id);
+      toast.success('Submission deleted successfully');
+      setIsDeleteDialogOpen(false);
+      setSelectedSubmission(null);
+    } catch (error) {
+      toast.error('Failed to delete submission');
+    }
   };
 
   const openDeleteDialog = (submission: any) => {
@@ -241,6 +178,32 @@ export default function SubmissionsPage() {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/3 mb-4"></div>
+          <div className="h-4 bg-muted rounded w-2/3 mb-6"></div>
+          <div className="h-48 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-2">Error Loading Submissions</h1>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -277,9 +240,9 @@ export default function SubmissionsPage() {
                       <SelectValue placeholder="Select an assignment" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockAssignments.map((assignment) => (
+                      {assignments.map((assignment) => (
                         <SelectItem key={assignment.id} value={assignment.id}>
-                          {assignment.title} ({assignment.unitCode})
+                          {assignment.title} ({assignment.unit_code})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -364,13 +327,13 @@ export default function SubmissionsPage() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{submission.studentId}</span>
+                        <span className="font-medium">{submission.student_id}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <FileText className="h-3 w-3" />
-                        <span>{submission.assignmentTitle}</span>
+                        <span>{submission.assignment?.title || 'Unknown Assignment'}</span>
                         <Badge variant="outline" className="text-xs">
-                          {submission.unitCode}
+                          {submission.assignment?.unit_code || 'N/A'}
                         </Badge>
                       </div>
                     </div>
@@ -379,18 +342,18 @@ export default function SubmissionsPage() {
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {new Date(submission.submittedAt).toLocaleDateString()}
+                        {new Date(submission.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(submission.submittedAt).toLocaleTimeString()}
+                      {new Date(submission.created_at).toLocaleTimeString()}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {getClassificationBadge(submission.evaluation.classification)}
+                    {submission.evaluation?.classification ? getClassificationBadge(submission.evaluation.classification) : <Badge variant="outline">Pending</Badge>}
                   </TableCell>
                   <TableCell>
-                    {getRubricScoreDisplay(submission.evaluation.rubricScores)}
+                    {submission.evaluation?.rubric_scores ? getRubricScoreDisplay(submission.evaluation.rubric_scores) : <span className="text-muted-foreground text-sm">No evaluation</span>}
                   </TableCell>
                   <TableCell>
                     {getStatusBadge(submission.status)}
@@ -456,7 +419,7 @@ export default function SubmissionsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Submission</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the submission from {selectedSubmission?.studentId}? This action cannot be undone.
+              Are you sure you want to delete the submission from {selectedSubmission?.student_id}? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
