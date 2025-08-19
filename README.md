@@ -1,83 +1,73 @@
-# AAIE - Artificial Assessment Intelligence Engine
+# Welcome to your Lovable project
 
-A comprehensive AI-powered assessment platform designed for educators to streamline the evaluation process of student submissions.
+## Project info
 
-## Project Structure
+**URL**: https://lovable.dev/projects/442d6b19-841f-43b1-aab6-71d83eccf3be
 
-```
-aaie/
-├── frontend/           # React application
-│   ├── src/
-│   │   ├── components/ # UI components
-│   │   ├── pages/      # Route components  
-│   │   ├── services/   # API services
-│   │   └── utils/      # Utility functions
-│   └── README.md
-├── backend/            # Supabase backend
-│   ├── supabase/       # Database migrations & functions
-│   └── README.md
-├── docs/               # Documentation
-└── README.md
-```
+## How can I edit this code?
 
-## Quick Start
+There are several ways of editing your application.
 
-### Frontend Development
+**Use Lovable**
 
-```bash
-cd frontend
-npm install
+Simply visit the [Lovable Project](https://lovable.dev/projects/442d6b19-841f-43b1-aab6-71d83eccf3be) and start prompting.
+
+Changes made via Lovable will be committed automatically to this repo.
+
+**Use your preferred IDE**
+
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-Access the app at `http://localhost:8080`
+**Edit a file directly in GitHub**
 
-### Backend Setup
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-The backend uses Supabase as a Backend-as-a-Service. See `backend/README.md` for setup instructions.
+**Use GitHub Codespaces**
 
-## Features
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-- **Landing Page** - Introduction to AAIE platform
-- **Authentication** - Secure user management with Supabase Auth
-- **Dashboard** - Educator overview and analytics
-- **Assignment Management** - Create and manage assignments with custom rubrics
-- **Submission Portal** - Upload and track student submissions
-- **AI Evaluation** - Automated assessment with AI classification
-- **Responsive Design** - Mobile-first, accessible interface
+## What technologies are used for this project?
 
-## Technology Stack
+This project is built with:
 
-### Frontend
-- React 18 with TypeScript
-- Vite for development and building
-- Tailwind CSS with design system
-- React Router for navigation
-- shadcn/ui component library
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-### Backend
-- Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-- Row Level Security (RLS) for data protection
-- Real-time subscriptions
-- File storage for submissions
+## How can I deploy this project?
 
-## Documentation
+Simply open [Lovable](https://lovable.dev/projects/442d6b19-841f-43b1-aab6-71d83eccf3be) and click on Share -> Publish.
 
-- [Frontend Setup](./frontend/README.md)
-- [Backend Architecture](./backend/README.md)
-- [API Documentation](./docs/api-spec.md)
-- [Project Overview](./docs/README.md)
+## Can I connect a custom domain to my Lovable project?
 
-## Development Workflow
+Yes, you can!
 
-1. **Frontend**: Run `cd frontend && npm run dev` for React development
-2. **Backend**: Use Supabase dashboard or CLI for database/function management
-3. **Documentation**: Update docs for any architectural changes
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-## Contributing
-
-Please read [docs/README.md](./docs/README.md) for development guidelines and project structure details.
-
-## License
-
-This project is licensed under the MIT License.
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

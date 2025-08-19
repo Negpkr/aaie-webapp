@@ -1,80 +1,48 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from '@/components/ui/toaster';
-import { AuthGuard } from '@/components/auth/AuthGuard';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { LandingHeader } from '@/components/layout/LandingHeader';
-import { LandingFooter } from '@/components/layout/LandingFooter';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { AppLayout } from "@/components/layout/AppLayout";
+import Index from "./pages/Index";
+import AuthPage from "./pages/AuthPage";
+import DashboardPage from "./pages/DashboardPage";
+import AssignmentsPage from "./pages/AssignmentsPage";
+import SubmissionsPage from "./pages/SubmissionsPage";
+import NotFound from "./pages/NotFound";
 
-// Pages
-import Index from '@/pages/Index';
-import AuthPage from '@/pages/AuthPage';
-import DashboardPage from '@/pages/DashboardPage';
-import AssignmentsPage from '@/pages/AssignmentsPage';
-import SubmissionsPage from '@/pages/SubmissionsPage';
-import NotFound from '@/pages/NotFound';
+const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route 
-          path="/" 
-          element={
-            <div className="min-h-screen flex flex-col">
-              <LandingHeader />
-              <main className="flex-1">
-                <Index />
-              </main>
-              <LandingFooter />
-            </div>
-          } 
-        />
-        <Route 
-          path="/auth" 
-          element={
-            <div className="min-h-screen flex flex-col">
-              <LandingHeader />
-              <main className="flex-1">
-                <AuthPage />
-              </main>
-              <LandingFooter />
-            </div>
-          } 
-        />
-
-        {/* Protected routes */}
-        <Route path="/dashboard" element={
-          <AuthGuard>
-            <AppLayout />
-          </AuthGuard>
-        }>
-          <Route index element={<DashboardPage />} />
-        </Route>
-        
-        <Route path="/assignments" element={
-          <AuthGuard>
-            <AppLayout />
-          </AuthGuard>
-        }>
-          <Route index element={<AssignmentsPage />} />
-        </Route>
-        
-        <Route path="/submissions" element={
-          <AuthGuard>
-            <AppLayout />
-          </AuthGuard>
-        }>
-          <Route index element={<SubmissionsPage />} />
-        </Route>
-
-        {/* Catch all - redirect to home */}
-        <Route path="/404" element={<NotFound />} />
-        <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
       <Toaster />
-    </Router>
-  );
-}
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<AuthPage />} />
+          
+          {/* Documentation and static pages */}
+          <Route path="/docs" element={<div className="p-6">Documentation (Coming Soon)</div>} />
+          <Route path="/about" element={<div className="p-6">About (Coming Soon)</div>} />
+          <Route path="/contact" element={<div className="p-6">Contact (Coming Soon)</div>} />
+          
+          <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/assignments" element={<AssignmentsPage />} />
+            <Route path="/submissions" element={<SubmissionsPage />} />
+            <Route path="/submissions/:id" element={<div className="p-6">Feedback Hub (Coming Soon)</div>} />
+            <Route path="/reports" element={<div className="p-6">Reports (Coming Soon)</div>} />
+            <Route path="/settings" element={<div className="p-6">Settings (Coming Soon)</div>} />
+          </Route>
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
