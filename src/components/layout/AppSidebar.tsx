@@ -71,7 +71,7 @@ export function AppSidebar() {
             <div className="flex flex-col">
               <span className="font-heading text-sm font-bold text-primary">AAIE</span>
               <span className="text-xs text-muted-foreground">
-                Assessment Intelligence
+                
               </span>
             </div>
           )}

@@ -67,7 +67,7 @@ export default function AuthPage() {
           <div>
             <h1 className="font-heading text-2xl font-bold text-primary">AAIE</h1>
             <p className="text-sm text-muted-foreground">
-              Artificial Assessment Intelligence for Educators
+              
             </p>
           </div>
         </div>

@@ -31,7 +31,7 @@ export function Header({ title = 'Dashboard' }: HeaderProps) {
             <div className="flex flex-col">
               <span className="font-heading text-lg font-bold text-primary">AAIE</span>
               <span className="hidden text-xs text-muted-foreground sm:block">
-                Artificial Assessment Intelligence
+                
               </span>
             </div>
           </NavLink>

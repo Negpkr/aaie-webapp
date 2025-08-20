@@ -4,7 +4,7 @@ export function Footer() {
       <div className="container flex flex-col items-center justify-between gap-4 px-4 md:flex-row">
         <div className="flex flex-col items-center gap-2 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © 2025 AAIE - Artificial Assessment Intelligence for Educators
+            © 2025 AAIE
           </p>
         </div>
         
