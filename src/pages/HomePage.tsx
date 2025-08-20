@@ -11,7 +11,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl pt-20 pb-32 sm:pt-32 sm:pb-40">
           <div className="text-center">
             <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-              AI-Powered Academic
+              Artificial Assessment Intelligence for Educators
               <span className="text-primary"> Assessment Platform</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
