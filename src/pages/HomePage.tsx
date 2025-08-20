@@ -11,7 +11,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl pt-20 pb-32 sm:pt-32 sm:pb-40">
           <div className="text-center">
             <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-              Artificial Assessment Intelligence for Educators
+              AI-Powered Academic
               <span className="text-primary"> Assessment Platform</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
@@ -148,25 +148,4 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative isolate px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Ready to Transform Your Assessment Process?
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-            Join educators worldwide who are already using our platform to enhance their academic assessment workflow.
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button asChild size="lg" className="academic-button bg-gradient-primary">
-              <Link to="/auth">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
+      
